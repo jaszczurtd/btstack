@@ -3504,7 +3504,19 @@ static void handle_command_status_event(uint8_t * packet, uint16_t size) {
                 // error => outgoing connection failed
                 hci_connection_t * conn = hci_connection_for_bd_addr_and_type(addr, addr_type);
                 if (conn != NULL){
-                    hci_handle_connection_failed(conn, status);
+                    // A simultaneous incoming Classic request reuses the same
+                    // connection object. A delayed failure for the outgoing
+                    // Create Connection must not discard that request.
+                    bool incoming_classic_collision = false;
+#ifdef ENABLE_CLASSIC
+                    incoming_classic_collision =
+                            (opcode == HCI_OPCODE_HCI_CREATE_CONNECTION) &&
+                            (conn->state == RECEIVED_CONNECTION_REQUEST ||
+                             conn->state == ACCEPTED_CONNECTION_REQUEST);
+#endif
+                    if (!incoming_classic_collision){
+                        hci_handle_connection_failed(conn, status);
+                    }
                 }
             }
             break;
