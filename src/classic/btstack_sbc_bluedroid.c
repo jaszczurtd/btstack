@@ -601,6 +601,6 @@ static const btstack_sbc_decoder_t btstack_sbc_decoder_bluedroid = {
 };
 
 const btstack_sbc_decoder_t * btstack_sbc_decoder_bluedroid_init_instance(btstack_sbc_decoder_bluedroid_t * context){
-    memset(context, 0, sizeof(btstack_sbc_encoder_bluedroid_t));
+    memset(context, 0, sizeof(btstack_sbc_decoder_bluedroid_t));
     return &btstack_sbc_decoder_bluedroid;
 }

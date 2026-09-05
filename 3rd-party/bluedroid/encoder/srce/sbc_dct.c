@@ -103,7 +103,7 @@ void SBC_FastIDCT8(SINT32 *pInVect, SINT32 *pOutVect)
 
     /* rearrangement of x2 and x6 as in (15) */
     x2 -=x6;
-    x6 <<= 1 ;
+    x6 *= 2;
 
     /* 2-point IDCT of x2 and x6 and post-multiplication as in (15) */
     SBC_IDCT_MULT(SBC_COS_PI_SUR_4,x6, x6); /*x6 = x6 * cos(1*pi/4) ; */
@@ -119,9 +119,9 @@ void SBC_FastIDCT8(SINT32 *pInVect, SINT32 *pOutVect)
 
 
     /* rearrangement of x1,x3,x5,x7 as in (15) */
-    x7 <<= 1 ;
-    x5 = ( x5 <<1 ) - x7 ;
-    x3 = ( x3 <<1 ) - x5 ;
+    x7 *= 2;
+    x5 = (x5 * 2) - x7;
+    x3 = (x3 * 2) - x5;
     x1 -= x3 >>1 ;
 
     /* two-dimensional IDCT of x1 and x5 */
@@ -132,7 +132,7 @@ void SBC_FastIDCT8(SINT32 *pInVect, SINT32 *pOutVect)
 
     /* rearrangement of x3 and x7 as in (15) */
     x3 -= x7;
-    x7 <<= 1 ;
+    x7 *= 2;
     SBC_IDCT_MULT(SBC_COS_PI_SUR_4, x7, x7);          /*x7 = x7 * cos(1*pi/4) ; */
 
     /* 2-point IDCT of x3 and x7 and post-multiplication as in (15) */

@@ -83,8 +83,12 @@ do { \
     OI_ASSERT((bitPtr) < 16); \
     OI_ASSERT((bitPtr) >= 8); \
     \
-    result = (value) << (bitPtr); \
-    result >>= 32 - (bits); \
+    if ((bits) == 0) { \
+        result = 0; \
+    } else { \
+        result = (value) << (bitPtr); \
+        result >>= 32 - (bits); \
+    } \
     \
     bitPtr += (bits); \
     while (bitPtr >= 16) { \

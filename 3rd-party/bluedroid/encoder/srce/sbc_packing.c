@@ -43,15 +43,13 @@
 }
 #else
 #define Mult32(s32In1,s32In2,s32OutLow) s32OutLow=(SINT32)s32In1*(SINT32)s32In2;
-#define Mult64(s32In1, s32In2, s32OutLow, s32OutHi)                                     \
-{                                                                                       \
-	s32OutLow   = ((SINT32)(UINT16)s32In1  * (UINT16)s32In2);                           \
-	s32TempVal2 = (SINT32)((s32In1 >> 16) * (UINT16)s32In2);                            \
-	s32Carry    = ( (((UINT32)(s32OutLow)>>16)&0xFFFF) +                                \
-										+ (s32TempVal2 & 0xFFFF) ) >> 16;               \
-	s32OutLow   += (s32TempVal2 << 16);                                                 \
-	s32OutHi     = (s32TempVal2 >> 16) + s32Carry;                                      \
-}
+#define Mult64(s32In1, s32In2, s32OutLow, s32OutHi)          \
+do {                                                          \
+    SINT64 s64Product = (SINT64)(s32In1) * (SINT32)(s32In2); \
+    UINT64 u64Product = (UINT64)s64Product;                   \
+    s32OutLow = (SINT32)(UINT32)u64Product;                   \
+    s32OutHi = (SINT32)(UINT32)(u64Product >> 32);            \
+} while (0)
 #endif
 
 void EncPacking(SBC_ENC_PARAMS *pstrEncParams)
@@ -79,7 +77,7 @@ void EncPacking(SBC_ENC_PARAMS *pstrEncParams)
 	SINT32 s32Temp1;	/*used in 64-bit multiplication*/
 	SINT32 s32Low;	/*used in 64-bit multiplication*/
 #if (SBC_IS_64_MULT_IN_QUANTIZER==TRUE)
-	SINT32 s32Hi1,s32Low1,s32Carry,s32TempVal2,s32Hi, s32Temp2;
+	SINT32 s32Hi1,s32Low1,s32Hi, s32Temp2;
 #endif
 
     pu8PacketPtr    = pstrEncParams->pu8NextPacket;    /*Initialize the ptr*/
@@ -171,7 +169,7 @@ void EncPacking(SBC_ENC_PARAMS *pstrEncParams)
 
                 s32Low1   = s32Low >> ((*ps16ScfPtr)+2);
                 s32Low1  &= ((UINT32)1 << (32 - ((*ps16ScfPtr)+2))) - 1;
-                s32Hi1    = s32Hi << (32 - ((*ps16ScfPtr) +2));
+                s32Hi1    = (SINT32)((UINT32)s32Hi << (32 - ((*ps16ScfPtr) +2)));
 
                 u32QuantizedSbValue0 = (UINT16)((s32Low1 | s32Hi1) >> 12);
 #else
@@ -290,4 +288,3 @@ void EncPacking(SBC_ENC_PARAMS *pstrEncParams)
     *pu8PacketPtr = u8CRC;
     pstrEncParams->pu8NextPacket+=pstrEncParams->u16PacketLength;  /* move the pointer to the end in case there is more than one frame to encode */
 }
-
